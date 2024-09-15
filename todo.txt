@@ -1,0 +1,30 @@
+
+====================== ToDo ======================
+
+
+Next video:
+Migration Products dengan Foreign Key menggunakan Sequlize-CLI
+https://www.youtube.com/watch?v=2Td89gHvF1E&list=PLBAY64k6bSAdcvjOMAlOlqEGfIuN6kJDB&index=31
+
+ === Create orders table ===
+
+====================== ToDo ======================
+
+
+
+
+====================== Notes ======================
+
+
+(ADMIN)
+username    = admin
+password    = admin123
+
+(USER)
+username    = user
+password    = user123
+
+Admin UUID  = 3b68bf71-b93f-44bb-98f0-221a25116fb8
+User UUID   = 4693e9b3-83a9-4f25-95a9-bd84cd62ddb3
+
+====================== Notes ======================
