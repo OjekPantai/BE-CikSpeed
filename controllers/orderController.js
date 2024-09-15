@@ -78,3 +78,49 @@ exports.getDetailOrders = asyncHandler(async (req, res) => {
     data: orderData,
   });
 });
+
+exports.updateStatus = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  const { status } = req.body;
+
+  if (!status) {
+    res.status(400);
+    throw new Error("Status is required to update.");
+  }
+
+  await Order.update(
+    { status },
+    {
+      where: {
+        id,
+      },
+    }
+  );
+
+  const updatedOrder = await Order.findByPk(id);
+
+  if (!updatedOrder) {
+    res.status(404);
+    throw new Error(`Order data not found`);
+  }
+
+  return res.status(200).json({
+    status: "Success",
+    message: "Order status updated successfully",
+    data: updatedOrder,
+  });
+});
+
+exports.deleteOrders = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  await Order.destroy({
+    where: {
+      id,
+    },
+  });
+
+  return res.status(200).json({
+    status: "Success",
+    message: "Order data deleted successfully",
+  });
+});
