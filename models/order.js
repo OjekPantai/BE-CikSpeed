@@ -13,11 +13,59 @@ module.exports = (sequelize, DataTypes) => {
   }
   Order.init(
     {
-      user_id: DataTypes.UUID,
-      service_id: DataTypes.UUID,
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+      },
+
+      user_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+        validate: {
+          notNull: { msg: "User is required" },
+        },
+      },
+
+      service_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Service is required",
+          },
+        },
+        isInt: true,
+        isExists(value) {
+          return sequelize.models.Service.findByPk(value).then((eL) => {
+            if (!eL) {
+              throw new Error("Service not found");
+            }
+          });
+        },
+      },
+
       complaint_message: DataTypes.TEXT,
-      status: DataTypes.STRING,
-      total_cost: DataTypes.INTEGER,
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Status is required" },
+        },
+      },
+      total_cost: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Total cost is required" },
+        },
+      },
     },
     {
       sequelize,
