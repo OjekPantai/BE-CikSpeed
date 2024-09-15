@@ -66,6 +66,13 @@ module.exports = (sequelize, DataTypes) => {
           notNull: { msg: "Total cost is required" },
         },
       },
+      total_estimate: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Total estimate is required" },
+        },
+      },
     },
     {
       sequelize,

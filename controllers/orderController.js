@@ -46,13 +46,13 @@ exports.createOrder = asyncHandler(async (req, res) => {
     user_id: userId,
     service_id: selected_service_ids.join(","), // Menggabungkan IDs layanan jika perlu disimpan sebagai string
     complaint_message,
-    status: "Menunggu Konfirmasi", // Status diatur otomatis
-    total_cost, // Total cost dihitung otomatis
+    status: "Menunggu Konfirmasi",
+    total_cost,
+    total_estimate,
   });
 
   res.status(201).json({
     status: "Success",
     data: newOrder,
-    total_estimate,
   });
 });
