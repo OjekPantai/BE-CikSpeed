@@ -1,7 +1,7 @@
 const asyncHandler = require("../middlewares/asyncHandle");
 const { Order, Service } = require("../models");
 
-exports.createOrder = asyncHandler(async (req, res) => {
+exports.createOrders = asyncHandler(async (req, res) => {
   // Mendapatkan id user dari user yang sedang login
   const userId = req.user.id;
   const { selected_service_ids, complaint_message } = req.body; // Menggunakan selected_service_ids untuk layanan yang dipilih
@@ -54,5 +54,27 @@ exports.createOrder = asyncHandler(async (req, res) => {
   res.status(201).json({
     status: "Success",
     data: newOrder,
+  });
+});
+
+exports.getOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.findAll();
+
+  return res.status(200).json({
+    data: orders,
+  });
+});
+
+exports.getDetailOrders = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  const orderData = await Order.findByPk(id);
+
+  if (!orderData) {
+    res.status(404);
+    throw new Error("Order data not found");
+  }
+
+  return res.status(200).json({
+    data: orderData,
   });
 });

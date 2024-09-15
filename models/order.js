@@ -40,14 +40,13 @@ module.exports = (sequelize, DataTypes) => {
           notNull: {
             msg: "Service is required",
           },
-        },
-        isInt: true,
-        isExists(value) {
-          return sequelize.models.Service.findByPk(value).then((eL) => {
-            if (!eL) {
-              throw new Error("Service not found");
-            }
-          });
+          isExists(value) {
+            return sequelize.models.Service.findByPk(value).then((eL) => {
+              if (!eL) {
+                throw new Error("Service not found");
+              }
+            });
+          },
         },
       },
 

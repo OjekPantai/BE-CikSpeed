@@ -3,10 +3,10 @@
 
 
 Next video:
-Migration Products dengan Foreign Key menggunakan Sequlize-CLI
-https://www.youtube.com/watch?v=2Td89gHvF1E&list=PLBAY64k6bSAdcvjOMAlOlqEGfIuN6kJDB&index=31
+CRUD Read Data dan Detail Product
+https://www.youtube.com/watch?v=wUrcQ3J96zs&list=PLBAY64k6bSAdcvjOMAlOlqEGfIuN6kJDB&index=34
 
- === Create orders table ===
+ === Create read update delete Order endpoint ===
 
 ====================== ToDo ======================
 
