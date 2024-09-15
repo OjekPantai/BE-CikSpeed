@@ -1,10 +1,12 @@
 "use strict";
+const { v4 } = require("uuid");
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     return queryInterface.bulkInsert("Services", [
       {
+        id: v4(),
         name: "Servis CVT",
         description:
           "Servis untuk membersihkan dan melumasi bagian CVT motor matic.",
@@ -14,6 +16,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: v4(),
         name: "Ganti Oli Mesin",
         description: "Penggantian oli mesin untuk menjaga performa motor.",
         cost: 75000,
@@ -22,6 +25,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: v4(),
         name: "Servis Rem",
         description: "Pemeriksaan dan perbaikan rem depan dan belakang motor.",
         cost: 50000,
@@ -30,6 +34,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: v4(),
         name: "Ganti Kampas Rem",
         description:
           "Penggantian kampas rem untuk meningkatkan daya cengkeram rem.",
@@ -39,6 +44,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        id: v4(),
         name: "Tune-Up Mesin",
         description:
           "Perawatan menyeluruh mesin untuk meningkatkan performa motor.",
