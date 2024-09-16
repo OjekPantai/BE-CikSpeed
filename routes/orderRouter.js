@@ -1,20 +1,21 @@
 const express = require("express");
 const router = express.Router();
-const { createOrder } = require("../controllers/orderController");
+const {
+  createOrder,
+  getOrders,
+  getOrderDetails,
+  updateOrderStatus,
+  deleteOrder,
+} = require("../controllers/orderController");
 const {
   authMiddleware,
   permissionUser,
 } = require("../middlewares/userMiddleware");
 
-// router.get("/", authMiddleware, getOrders);
-// router.get(
-//   "/:id",
-//   authMiddleware,
-//   permissionUser("admin", "user"),
-//   getDetailOrders
-// );
+router.get("/", authMiddleware, getOrders);
+router.get("/:id", authMiddleware, getOrderDetails);
 router.post("/", authMiddleware, permissionUser("admin", "user"), createOrder);
-// router.put("/:id", authMiddleware, permissionUser("admin"), updateStatus); // Update status only
-// router.delete("/:id", authMiddleware, permissionUser("admin"), deleteOrders);
+router.put("/:id", authMiddleware, permissionUser("admin"), updateOrderStatus); // Update status only
+router.delete("/:id", authMiddleware, permissionUser("admin"), deleteOrder);
 
 module.exports = router;

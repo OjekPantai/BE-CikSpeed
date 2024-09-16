@@ -72,3 +72,110 @@ exports.createOrder = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+exports.getOrders = async (req, res) => {
+  try {
+    const orders = await Order.findAll({
+      where: { user_id: req.user.id },
+      include: [
+        { model: Service },
+        { model: User, attributes: ["id", "username"] },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.getOrderDetails = async (req, res) => {
+  try {
+    const order = await Order.findOne({
+      where: {
+        id: req.params.id,
+        user_id: req.user.id,
+      },
+      include: [
+        { model: Service },
+        { model: User, attributes: ["id", "username"] },
+      ],
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const { status } = req.body;
+
+    if (!status) {
+      await t.rollback();
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const order = await Order.findOne({
+      where: {
+        id: req.params.id,
+        user_id: req.user.id,
+      },
+    });
+
+    if (!order) {
+      await t.rollback();
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    await order.update({ status }, { transaction: t });
+
+    await t.commit();
+
+    res
+      .status(200)
+      .json({ message: "Order status updated successfully", order });
+  } catch (error) {
+    await t.rollback();
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.deleteOrder = async (req, res) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const order = await Order.findOne({
+      where: {
+        id: req.params.id,
+        user_id: req.user.id,
+      },
+    });
+
+    if (!order) {
+      await t.rollback();
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    await order.destroy({ transaction: t });
+
+    await t.commit();
+
+    res.status(200).json({ message: "Order deleted successfully" });
+  } catch (error) {
+    await t.rollback();
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
