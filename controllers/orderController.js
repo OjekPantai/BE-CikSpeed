@@ -1,126 +1,74 @@
-const asyncHandler = require("../middlewares/asyncHandle");
-const { Order, Service } = require("../models");
+const { Order, Service, User, OrderService } = require("../models");
+const { sequelize } = require("../models");
 
-exports.createOrders = asyncHandler(async (req, res) => {
-  // Mendapatkan id user dari user yang sedang login
-  const userId = req.user.id;
-  const { selected_service_ids, complaint_message } = req.body; // Menggunakan selected_service_ids untuk layanan yang dipilih
+exports.createOrder = async (req, res) => {
+  const t = await sequelize.transaction();
 
-  if (
-    !Array.isArray(selected_service_ids) ||
-    selected_service_ids.length === 0
-  ) {
-    return res.status(400).json({
-      status: "Error",
-      message: "At least one service is required",
-    });
-  }
+  try {
+    const { complaint_message, service_ids } = req.body;
+    const user_id = req.user.id;
 
-  // Mengambil biaya dari setiap layanan dan menghitung total_cost
-  const services = await Service.findAll({
-    where: {
-      id: selected_service_ids,
-    },
-  });
-
-  if (services.length !== selected_service_ids.length) {
-    return res.status(400).json({
-      status: "Error",
-      message: "One or more services not found",
-    });
-  }
-
-  const total_cost = services.reduce(
-    (total, service) => total + service.cost,
-    0
-  );
-
-  // Total estimate dihitung otomatis tidak disimpan dalam database
-  const total_estimate = services.reduce(
-    (total, service) => total + service.estimate,
-    0
-  );
-
-  // Membuat order baru
-  const newOrder = await Order.create({
-    user_id: userId,
-    service_id: selected_service_ids.join(","), // Menggabungkan IDs layanan jika perlu disimpan sebagai string
-    complaint_message,
-    status: "Menunggu Konfirmasi",
-    total_cost,
-    total_estimate,
-  });
-
-  res.status(201).json({
-    status: "Success",
-    data: newOrder,
-  });
-});
-
-exports.getOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.findAll();
-
-  return res.status(200).json({
-    data: orders,
-  });
-});
-
-exports.getDetailOrders = asyncHandler(async (req, res) => {
-  const id = req.params.id;
-  const orderData = await Order.findByPk(id);
-
-  if (!orderData) {
-    res.status(404);
-    throw new Error("Order data not found");
-  }
-
-  return res.status(200).json({
-    data: orderData,
-  });
-});
-
-exports.updateStatus = asyncHandler(async (req, res) => {
-  const id = req.params.id;
-  const { status } = req.body;
-
-  if (!status) {
-    res.status(400);
-    throw new Error("Status is required to update.");
-  }
-
-  await Order.update(
-    { status },
-    {
-      where: {
-        id,
-      },
+    // Validate user
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({ message: "User not found" });
     }
-  );
 
-  const updatedOrder = await Order.findByPk(id);
+    // Validate and get services
+    const services = await Service.findAll({
+      where: {
+        id: service_ids,
+      },
+    });
 
-  if (!updatedOrder) {
-    res.status(404);
-    throw new Error(`Order data not found`);
+    if (services.length !== service_ids.length) {
+      await t.rollback();
+      return res.status(400).json({ message: "Invalid service IDs" });
+    }
+
+    // Calculate total cost and estimate
+    const total_cost = services.reduce((sum, service) => sum + service.cost, 0);
+    const total_estimate = services.reduce(
+      (sum, service) => sum + service.estimate,
+      0
+    );
+
+    // Create order
+    const order = await Order.create(
+      {
+        user_id,
+        complaint_message,
+        status: "Menunggu konfirmasi",
+        total_cost,
+        total_estimate,
+      },
+      { transaction: t }
+    );
+
+    // Create OrderService associations
+    await OrderService.bulkCreate(
+      services.map((service) => ({
+        order_id: order.id,
+        service_id: service.id,
+      })),
+      { transaction: t }
+    );
+
+    await t.commit();
+
+    // Fetch the created order with associated services
+    const createdOrder = await Order.findByPk(order.id, {
+      include: [{ model: Service }],
+    });
+
+    res.status(201).json({
+      message: "Order created successfully",
+      order: createdOrder,
+    });
+  } catch (error) {
+    await t.rollback();
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  return res.status(200).json({
-    status: "Success",
-    message: "Order status updated successfully",
-    data: updatedOrder,
-  });
-});
-
-exports.deleteOrders = asyncHandler(async (req, res) => {
-  const id = req.params.id;
-  await Order.destroy({
-    where: {
-      id,
-    },
-  });
-
-  return res.status(200).json({
-    status: "Success",
-    message: "Order data deleted successfully",
-  });
-});
+};

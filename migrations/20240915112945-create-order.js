@@ -19,16 +19,6 @@ module.exports = {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
-      service_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: "Services",
-          key: "id",
-        },
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      },
       complaint_message: {
         type: Sequelize.TEXT,
         allowNull: true,

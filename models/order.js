@@ -8,7 +8,12 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Order.belongsTo(models.User, { foreignKey: "user_id" });
+      Order.belongsToMany(models.Service, {
+        through: "OrderService",
+        foreignKey: "order_id",
+        otherKey: "service_id",
+      });
     }
   }
   Order.init(
@@ -30,23 +35,6 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         validate: {
           notNull: { msg: "User is required" },
-        },
-      },
-
-      service_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        validate: {
-          notNull: {
-            msg: "Service is required",
-          },
-          isExists(value) {
-            return sequelize.models.Service.findByPk(value).then((eL) => {
-              if (!eL) {
-                throw new Error("Service not found");
-              }
-            });
-          },
         },
       },
 
