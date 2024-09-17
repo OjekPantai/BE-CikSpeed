@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+const asyncHandle = require("../middlewares/asyncHandle");
 const { Order, Service, User, OrderService } = require("../models");
 const { sequelize } = require("../models");
 
@@ -73,7 +75,62 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-exports.getOrders = async (req, res) => {
+exports.readOrders = asyncHandle(async (req, res) => {
+  const { search, limit, page } = req.query;
+  let orderData = "";
+
+  if (search || limit || page) {
+    const pageData = page * 1 || 1;
+    const limitData = limit * 1 || 100;
+    const offsetData = (pageData - 1) * limitData;
+    const searchData = search || "";
+
+    const orders = await Order.findAndCountAll({
+      limit: limitData,
+      offset: offsetData,
+      include: [
+        {
+          model: User,
+          as: "User",
+          where: {
+            username: {
+              [Op.like]: "%" + searchData + "%",
+            },
+          },
+          attributes: ["username"], // hanya mengambil username
+        },
+        {
+          model: Service,
+          through: { attributes: [] }, // Menghilangkan atribut OrderService dari response
+        },
+      ],
+    });
+
+    orderData = orders;
+  } else {
+    const orders = await Order.findAndCountAll({
+      include: [
+        {
+          model: Service,
+          through: { attributes: [] }, // Menghilangkan atribut OrderService dari response
+        },
+        {
+          model: User,
+          as: "User",
+          attributes: ["username"],
+        },
+      ],
+    });
+
+    orderData = orders;
+  }
+
+  return res.status(200).json({
+    data: orderData,
+  });
+});
+
+exports.getCurrentOrders = async (req, res) => {
   try {
     const orders = await Order.findAll({
       where: { user_id: req.user.id },
