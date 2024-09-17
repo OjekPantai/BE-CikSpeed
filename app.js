@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const cookieParse = require("cookie-parser");
+const db = require("./models");
 
 const { errorHandler, notFound } = require("./middlewares/errorMiddleware");
 
@@ -29,4 +30,8 @@ app.use(notFound);
 app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server running 🚀 on port ${port}`));
+db.connectToDatabase().then(() => {
+  app.listen(port, () => {
+    console.log(`Server running 🚀 on port ${port}`);
+  });
+});
