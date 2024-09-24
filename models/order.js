@@ -39,6 +39,15 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       complaint_message: DataTypes.TEXT,
+
+      motorcycle_type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: { msg: "Motorcycle type is required" },
+        },
+      },
+
       status: {
         type: DataTypes.STRING,
         allowNull: false,

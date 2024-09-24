@@ -7,7 +7,7 @@ exports.createOrder = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    const { complaint_message, service_ids } = req.body;
+    const { complaint_message, service_ids, motorcycle_type } = req.body;
     const user_id = req.user.id;
 
     // Validate user
@@ -15,6 +15,12 @@ exports.createOrder = async (req, res) => {
     if (!user) {
       await t.rollback();
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // Validate motorcycle type
+    if (!motorcycle_type) {
+      await t.rollback();
+      return res.status(400).json({ message: "Motorcycle type is required" });
     }
 
     // Validate and get services
@@ -41,6 +47,7 @@ exports.createOrder = async (req, res) => {
       {
         user_id,
         complaint_message,
+        motorcycle_type,
         status: "Menunggu konfirmasi",
         total_cost,
         total_estimate,
@@ -139,9 +146,10 @@ exports.getCurrentOrders = async (req, res) => {
         { model: User, attributes: ["id", "username"] },
       ],
       order: [["createdAt", "DESC"]],
+      limit: 1,
     });
 
-    res.status(200).json(orders);
+    res.status(200).json(orders[0]);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

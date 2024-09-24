@@ -32,7 +32,8 @@ exports.readServices = asyncHandle(async (req, res) => {
   }
 
   return res.status(200).json({
-    data: serviceData,
+    data: serviceData.rows,
+    total: serviceData.count,
   });
 });
 
