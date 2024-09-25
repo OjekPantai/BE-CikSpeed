@@ -124,7 +124,7 @@ exports.readOrders = asyncHandle(async (req, res) => {
         {
           model: User,
           as: "User",
-          attributes: ["username"],
+          attributes: ["username", "phoneNumber"],
         },
       ],
     });
@@ -194,7 +194,6 @@ exports.updateOrderStatus = async (req, res) => {
     const order = await Order.findOne({
       where: {
         id: req.params.id,
-        user_id: req.user.id,
       },
     });
 
