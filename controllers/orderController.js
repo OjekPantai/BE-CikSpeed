@@ -48,7 +48,7 @@ exports.createOrder = async (req, res) => {
         user_id,
         complaint_message,
         motorcycle_type,
-        status: "Menunggu konfirmasi",
+        status: "menunggu konfirmasi",
         total_cost,
         total_estimate,
       },
@@ -223,7 +223,6 @@ exports.deleteOrder = async (req, res) => {
     const order = await Order.findOne({
       where: {
         id: req.params.id,
-        user_id: req.user.id,
       },
     });
 
