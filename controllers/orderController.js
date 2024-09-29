@@ -104,11 +104,11 @@ exports.readOrders = asyncHandle(async (req, res) => {
               [Op.like]: "%" + searchData + "%",
             },
           },
-          attributes: ["username"], // hanya mengambil username
+          attributes: ["username"],
         },
         {
           model: Service,
-          through: { attributes: [] }, // Menghilangkan atribut OrderService dari response
+          through: { attributes: [] },
         },
       ],
     });
@@ -119,12 +119,12 @@ exports.readOrders = asyncHandle(async (req, res) => {
       include: [
         {
           model: Service,
-          through: { attributes: [] }, // Menghilangkan atribut OrderService dari response
+          through: { attributes: [] },
         },
         {
           model: User,
           as: "User",
-          attributes: ["username", "phoneNumber"],
+          attributes: ["username", "phoneNumber", "address"],
         },
       ],
     });
